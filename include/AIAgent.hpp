@@ -2,19 +2,21 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 struct AIResponse {
     bool isMatch;
-    std::string summary;
+    string summary;
     bool quotaExceeded = false;
 };
 
 class AIAgent {
 public:
-    AIAgent(const std::string& geminiApiKey);
-    AIResponse evaluateJob(const std::string& jobSnippet, const std::string& criteria);
-    std::vector<std::string> generateSearchQueries(const std::string& jobTitle, const std::string& skills);
+    AIAgent(const string& geminiApiKey);
+    AIResponse evaluateJob(const string& jobSnippet, const string& criteria);
+    vector<string> generateSearchQueries(const string& jobTitle, const string& skills);
 
 private:
-    std::string geminiApiKey;
+    string geminiApiKey;
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
 };

@@ -3,26 +3,28 @@
 #include <curl/curl.h>
 #include "json.hpp"
 
+using namespace std;
+
 using json = nlohmann::json;
 
-AIAgent::AIAgent(const std::string& geminiApiKey) : geminiApiKey(geminiApiKey) {}
+AIAgent::AIAgent(const string& geminiApiKey) : geminiApiKey(geminiApiKey) {}
 
 size_t AIAgent::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    ((string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
-AIResponse AIAgent::evaluateJob(const std::string& jobSnippet, const std::string& criteria) {
+AIResponse AIAgent::evaluateJob(const string& jobSnippet, const string& criteria) {
     AIResponse aiRes = {false, "Failed to analyze."};
     CURL* curl;
     CURLcode res;
-    std::string readBuffer;
+    string readBuffer;
 
     curl = curl_easy_init();
     if(curl) {
-        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + geminiApiKey;
+        string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + geminiApiKey;
         
-        std::string prompt = "You are an AI job assistant. I am looking for a job with the following criteria:\n" + criteria + 
+        string prompt = "You are an AI job assistant. I am looking for a job with the following criteria:\n" + criteria + 
                              "\n\nHere is a job description snippet:\n" + jobSnippet +
                              "\n\nCRITICAL FILTERING: If the user is looking for a 'Junior' or 'SDE 1' role, you MUST REJECT roles that are "
                              "'Senior', 'Lead', 'Staff', 'Principal', 'SDE 2', 'SDE 3', 'II', 'III', or require 5+ years of experience. "
@@ -32,7 +34,7 @@ AIResponse AIAgent::evaluateJob(const std::string& jobSnippet, const std::string
         json requestJson;
         requestJson["contents"][0]["parts"][0]["text"] = prompt;
         
-        std::string payload = requestJson.dump();
+        string payload = requestJson.dump();
 
         struct curl_slist* headers = NULL;
         headers = curl_slist_append(headers, "Content-Type: application/json");
@@ -56,13 +58,13 @@ AIResponse AIAgent::evaluateJob(const std::string& jobSnippet, const std::string
             try {
                 json response = json::parse(readBuffer);
                 if(response.contains("candidates") && response["candidates"].size() > 0) {
-                    std::string aiText = response["candidates"][0]["content"]["parts"][0]["text"];
+                    string aiText = response["candidates"][0]["content"]["parts"][0]["text"];
                     
                     // The text might be wrapped in ```json ... ``` markdown
                     size_t firstBrace = aiText.find('{');
                     size_t lastBrace = aiText.rfind('}');
-                    if (firstBrace != std::string::npos && lastBrace != std::string::npos) {
-                        std::string jsonStr = aiText.substr(firstBrace, lastBrace - firstBrace + 1);
+                    if (firstBrace != string::npos && lastBrace != string::npos) {
+                        string jsonStr = aiText.substr(firstBrace, lastBrace - firstBrace + 1);
                         json aiResult = json::parse(jsonStr);
                         if (aiResult.contains("is_match") && aiResult.contains("summary")) {
                             aiRes.isMatch = aiResult["is_match"];
@@ -72,36 +74,36 @@ AIResponse AIAgent::evaluateJob(const std::string& jobSnippet, const std::string
                         aiRes.summary = "Could not parse JSON from AI response. Raw Text: " + aiText;
                     }
                 } else if (response.contains("error")) {
-                     std::string errorMsg = response["error"]["message"];
-                     std::cerr << "Gemini API Error: " << errorMsg << " (Code: " << response["error"]["code"] << ")\n";
-                     if (response["error"]["code"] == 429 || errorMsg.find("quota") != std::string::npos) {
+                     string errorMsg = response["error"]["message"];
+                     cerr << "Gemini API Error: " << errorMsg << " (Code: " << response["error"]["code"] << ")\n";
+                     if (response["error"]["code"] == 429 || errorMsg.find("quota") != string::npos) {
                          aiRes.quotaExceeded = true;
                      }
                 } else {
-                    std::cerr << "Unexpected Gemini Response Format. Raw Body: " << readBuffer << '\n';
+                    cerr << "Unexpected Gemini Response Format. Raw Body: " << readBuffer << '\n';
                 }
-            } catch (const std::exception& e) {
-                std::cerr << "JSON/Parse Error in AIAgent: " << e.what() << '\n';
-                std::cerr << "Raw Output: " << readBuffer << '\n';
+            } catch (const exception& e) {
+                cerr << "JSON/Parse Error in AIAgent: " << e.what() << '\n';
+                cerr << "Raw Output: " << readBuffer << '\n';
             }
         } else {
-            std::cerr << "cURL Network Error in AIAgent: " << curl_easy_strerror(res) << " (Code: " << res << ")\n";
+            cerr << "cURL Network Error in AIAgent: " << curl_easy_strerror(res) << " (Code: " << res << ")\n";
         }
     }
     return aiRes;
 }
 
-std::vector<std::string> AIAgent::generateSearchQueries(const std::string& jobTitle, const std::string& skills) {
-    std::vector<std::string> queries;
+vector<string> AIAgent::generateSearchQueries(const string& jobTitle, const string& skills) {
+    vector<string> queries;
     CURL* curl;
     CURLcode res;
-    std::string readBuffer;
+    string readBuffer;
 
     curl = curl_easy_init();
     if(curl) {
-        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + geminiApiKey;
+        string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + geminiApiKey;
         
-        std::string prompt = "Input Job Title: '" + jobTitle + "'\n" +
+        string prompt = "Input Job Title: '" + jobTitle + "'\n" +
                              "Input Skills: '" + skills + "'\n\n" +
                              "Generate a JSON list of 5 high-quality search queries for Google Jobs. "
                              "Be broad and inclusive. If the title includes a company name (e.g., 'cred'), "
@@ -112,7 +114,7 @@ std::vector<std::string> AIAgent::generateSearchQueries(const std::string& jobTi
 
         json requestJson;
         requestJson["contents"][0]["parts"][0]["text"] = prompt;
-        std::string payload = requestJson.dump();
+        string payload = requestJson.dump();
 
         struct curl_slist* headers = NULL;
         headers = curl_slist_append(headers, "Content-Type: application/json");
@@ -134,18 +136,18 @@ std::vector<std::string> AIAgent::generateSearchQueries(const std::string& jobTi
             try {
                 json response = json::parse(readBuffer);
                 if(response.contains("candidates") && response["candidates"].size() > 0) {
-                    std::string aiText = response["candidates"][0]["content"]["parts"][0]["text"];
+                    string aiText = response["candidates"][0]["content"]["parts"][0]["text"];
                     size_t firstBrace = aiText.find('{');
                     size_t lastBrace = aiText.rfind('}');
-                    if (firstBrace != std::string::npos && lastBrace != std::string::npos) {
-                        std::string jsonStr = aiText.substr(firstBrace, lastBrace - firstBrace + 1);
+                    if (firstBrace != string::npos && lastBrace != string::npos) {
+                        string jsonStr = aiText.substr(firstBrace, lastBrace - firstBrace + 1);
                         json result = json::parse(jsonStr);
                         if (result.contains("queries")) {
                             for (auto& q : result["queries"]) queries.push_back(q);
                         }
                     }
                 } else if (response.contains("error")) {
-                     std::cerr << "Gemini Query Expansion Error: " << response["error"]["message"] << "\n";
+                     cerr << "Gemini Query Expansion Error: " << response["error"]["message"] << "\n";
                 }
             } catch (...) {}
         }

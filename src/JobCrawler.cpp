@@ -3,26 +3,28 @@
 #include <curl/curl.h>
 #include "json.hpp"
 
+using namespace std;
+
 using json = nlohmann::json;
 
-JobCrawler::JobCrawler(const std::string& searchApiKey) : searchApiKey(searchApiKey) {}
+JobCrawler::JobCrawler(const string& searchApiKey) : searchApiKey(searchApiKey) {}
 
 size_t JobCrawler::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    ((string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
-std::vector<JobPosting> JobCrawler::searchJobs(const std::string& query) {
-    std::vector<JobPosting> jobs;
+vector<JobPosting> JobCrawler::searchJobs(const string& query) {
+    vector<JobPosting> jobs;
     CURL* curl;
     CURLcode res;
-    std::string readBuffer;
+    string readBuffer;
 
     curl = curl_easy_init();
     if(curl) {
         // We use SerpApi Google Jobs API here
         char* escapedQuery = curl_easy_escape(curl, query.c_str(), query.length());
-        std::string url = "https://serpapi.com/search.json?engine=google_jobs&q=" + std::string(escapedQuery) + "&api_key=" + searchApiKey;
+        string url = "https://serpapi.com/search.json?engine=google_jobs&q=" + string(escapedQuery) + "&api_key=" + searchApiKey;
         curl_free(escapedQuery);
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -56,16 +58,16 @@ std::vector<JobPosting> JobCrawler::searchJobs(const std::string& query) {
                         jobs.push_back(jp);
                     }
                 } else if (response.contains("error")) {
-                    std::cerr << "SerpApi API Error Response: " << response["error"] << '\n';
+                    cerr << "SerpApi API Error Response: " << response["error"] << '\n';
                 } else {
-                    std::cerr << "No 'jobs_results' field in SerpApi response. Raw body: " << readBuffer << '\n';
+                    cerr << "No 'jobs_results' field in SerpApi response. Raw body: " << readBuffer << '\n';
                 }
             } catch (const json::parse_error& e) {
-                std::cerr << "JSON Parse Error in JobCrawler: " << e.what() << '\n';
-                std::cerr << "Raw response: " << readBuffer << '\n';
+                cerr << "JSON Parse Error in JobCrawler: " << e.what() << '\n';
+                cerr << "Raw response: " << readBuffer << '\n';
             }
         } else {
-            std::cerr << "cURL Network Error in JobCrawler: " << curl_easy_strerror(res) << " (Code: " << res << ")\n";
+            cerr << "cURL Network Error in JobCrawler: " << curl_easy_strerror(res) << " (Code: " << res << ")\n";
         }
     }
     return jobs;

@@ -2,8 +2,10 @@
 #include <string>
 #include <map>
 
+using namespace std;
+
 namespace Utils {
-    std::map<std::string, std::string> loadEnv(const std::string& filename);
-    std::string slugify(const std::string& text);
-    void writeToFile(const std::string& filename, const std::string& content);
+    map<string, string> loadEnv(const string& filename);
+    string slugify(const string& text);
+    void writeToFile(const string& filename, const string& content);
 }
