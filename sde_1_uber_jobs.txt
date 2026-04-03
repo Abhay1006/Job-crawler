@@ -1,0 +1,6 @@
+----------------------------------------
+Title: Senior Software Engineer - FullStack Eng / AI
+Company: Uber
+URL: https://www.google.com/search?ibp=htl;jobs&q=Software+Development+Engineer+1+Uber+JavaScript&htidocid=9yL79M2JyOm5JJeCAAAAAA%3D%3D&hl=en-US&shndl=37&shmd=H4sIAAAAAAAA_xXNLQ_CMBCA4WDnMajTBFZCggG18BWwDXppm6MrlLul18H4K_xaNvOKx7zFb1IcNFLgBJrv-WMSwpF8IMQESzh1Meps3HNEUFBdBryyBUGTXANMcGb2EWe7JudWtkqJxNJLNjm40vFLMaHlXj3YyphamuHRRpOxXm9WfdmSn09vdtgFAt0Rfd8m4gL21R_gO765nQAAAA&shmds=v1_ATWGeeNvzxtppZoWpd127lK7S9GmtPY1OzVzfSj8t1UmeMN-LQ&source=sh/x/job/li/m1/1#fpstate=tldetail&htivrt=jobs&htiq=Software+Development+Engineer+1+Uber+JavaScript&htidocid=9yL79M2JyOm5JJeCAAAAAA%3D%3D
+AI Summary: The role is for a 'Software Engineer' which can encompass an SDE 1 level at Uber, and does not specify a higher level or require 5+ years of experience, thus passing the critical filtering. Your required skill 'js' is explicitly listed as a comfortable scripting language. While 'reactjs' is not explicitly mentioned, the role involves building 'front end stack for web experiences', implying relevance for ReactJS.
+
